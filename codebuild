@@ -1,0 +1,79 @@
+Set up CodeBuild to build & push image
+
+Goal: Build Docker image and push to ECR without Docker locally.
+
+Step 1: Create ECR repo again
+aws ecr create-repository --repository-name neelu/demo1 --region us-east-1
+
+
+Copy repository URI:
+654654362568.dkr.ecr.us-east-1.amazonaws.com/neelu/demo1
+
+Step 2: Create project folder in CloudShell
+mkdir codebuild-demo && cd codebuild-demo
+
+app.py
+cat <<EOF > app.py
+print("Hello from CodeBuild ECR demo")
+EOF
+
+Dockerfile
+cat <<EOF > Dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY app.py .
+CMD ["python", "app.py"]
+EOF
+
+Step 3: Create buildspec.yml
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 |
+        docker login --username AWS --password-stdin 654654362568.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - echo Build Docker image...
+      - docker build -t demo1 .
+      - docker tag demo1:latest 654654362568.dkr.ecr.us-east-1.amazonaws.com/neelu/demo1:v1
+  post_build:
+    commands:
+      - echo Push Docker image to ECR...
+      - docker push 654654362568.dkr.ecr.us-east-1.amazonaws.com/neelu/demo1:v1
+
+Step 4: Create CodeBuild project
+
+Go to AWS Console → CodeBuild → Create project
+
+Project name: codebuild-demo
+
+Source: Choose CloudShell folder (or GitHub repo if you push code)
+
+Environment:
+
+Managed image: Amazon Linux 2
+
+Privileged: ✅ ENABLED (required for Docker)
+
+Service role: auto-create (it will include ECR permissions)
+
+Buildspec: Use buildspec.yml from source
+
+Step 5: Start build
+
+Click Start build
+
+Watch logs → it will:
+
+Login to ECR
+
+Build image
+
+Tag image
+
+Push image
+
+Check ECR repository → image v1 should appear
