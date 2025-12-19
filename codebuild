@@ -77,3 +77,83 @@ Tag image
 Push image
 
 Check ECR repository → image v1 should appear
+Ah! That error usually happens in CloudShell when your current working directory path doesn’t exist or the $HOME directory isn’t set correctly. Let’s fix it step by step.
+
+Step 1️⃣ Go to your home directory
+cd ~
+
+
+Check you are in home:
+
+pwd
+
+
+Expected output:
+
+/home/cloudshell-user
+
+Step 2️⃣ Create the folder
+mkdir codebuild-demo
+cd codebuild-demo
+
+
+Now you should be inside codebuild-demo.
+
+Step 3️⃣ Confirm
+pwd
+ls
+
+
+pwd → /home/cloudshell-user/codebuild-demo
+
+ls → should show empty folder
+
+✅ Now you can continue creating:
+
+cat <<EOF > app.py
+print("Hello from CodeBuild ECR demo")
+EOF
+
+
+and
+
+cat <<EOF > Dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY app.py .
+CMD ["python", "app.py"]
+EOF
+
+
+💡 Tip: Always cd ~ first in CloudShell before creating new folders to avoid “No such file or directory” errors.
+Step 1️⃣ Make sure you are in your folder
+cd ~/codebuild-demo
+
+Step 2️⃣ Create the buildspec.yml file
+cat <<EOF > buildspec.yml
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654362568.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - echo Build Docker image...
+      - docker build -t demo1 .
+      - docker tag demo1:latest 654654362568.dkr.ecr.us-east-1.amazonaws.com/neelu/demo1:v1
+  post_build:
+    commands:
+      - echo Push Docker image to ECR...
+      - docker push 654654362568.dkr.ecr.us-east-1.amazonaws.com/neelu/demo1:v1
+EOF
+
+
+✅ This will create a file named buildspec.yml in your folder.
+
+Step 3️⃣ Verify the file
+cat buildspec.yml
+
+
+You should see the YAML content printed.
