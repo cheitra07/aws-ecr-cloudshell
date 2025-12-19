@@ -112,3 +112,25 @@ CodeBuild logs will be in CloudWatch → delete if needed
 
 ---
 Do you want me to do that?
+Step 1: Delete ECR repository
+aws ecr delete-repository --repository-name neelu/demo1 --region us-east-1 --force
+
+
+--force deletes all images inside automatically
+
+No running containers exist in CloudShell, so safe ✅
+
+Step 2: Delete CloudShell folder (optional)
+rm -rf ~/demo1
+
+Step 3: Check IAM (optional)
+
+If you created any special IAM user/role → delete
+
+If you used your own IAM → no action needed
+
+Step 4: CloudWatch logs (optional)
+
+CloudShell + Docker commands don’t produce persistent logs
+
+CodeBuild logs will be in CloudWatch → delete if needed
