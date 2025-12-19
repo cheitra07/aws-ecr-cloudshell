@@ -96,17 +96,19 @@ Hello from ECR CloudShell demo
 
 ---
 
-## 🎯 Done!
+aws ecr delete-repository --repository-name neelu/demo1 --region us-east-1 --force
+rm -rf ~/demo1
+Step 3: Check IAM (optional)
 
-You now have:
+If you created any special IAM user/role → delete
 
-* Built a Docker image in CloudShell
-* Tagged it
-* Pushed it to your **ECR repository**
-* Tested it locally in CloudShell
+If you used your own IAM → no action needed
+
+Step 4: CloudWatch logs (optional)
+
+CloudShell + Docker commands don’t produce persistent logs
+
+CodeBuild logs will be in CloudWatch → delete if needed
 
 ---
-
-If you want, next I can show **how to deploy this image to Lambda or ECS Fargate** without touching Docker locally.
-
 Do you want me to do that?
